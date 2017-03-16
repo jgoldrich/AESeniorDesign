@@ -1,0 +1,40 @@
+<!-- FOOTER -->
+<hr class="featurette-divider">
+<footer>
+  <p class="pull-right back-to-top"><a href="#">Back to top</a></p>
+  <p>&copy; 2016-2017 Pharaohspace, Inc. &middot; <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Privacy</a> &middot; <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Terms</a></p>
+  <script> 
+    jQuery(document).ready(function() {
+      var offset = 220;
+      var duration = 500;
+        jQuery(window).scroll(function() {
+          if (jQuery(this).scrollTop() > offset) {
+              jQuery('.back-to-top').fadeIn(duration);
+          } else {
+              jQuery('.back-to-top').fadeOut(duration);
+          }
+        });
+
+      jQuery('.back-to-top').click(function(event) {
+          event.preventDefault();
+          jQuery('html, body').animate({scrollTop: 0}, duration);
+          return false;
+      })
+    });
+  </script>
+</footer>
+
+
+ </div><!-- /.container -->
+   <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="../../assets/js/vendor/holder.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
