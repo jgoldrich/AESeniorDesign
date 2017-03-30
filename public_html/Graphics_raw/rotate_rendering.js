@@ -409,41 +409,62 @@ function draw() {
 }
 
 function setupSpheresDraw() {
+
+    var transformVec = vec3.create(); // vector to move objects around
+    var scaleVec = vec3.create(); // scaling vector
+
+    // Set up light parameters
+    var Ia = vec3.fromValues(1.0,1.0,1.0); // ambient
+    var Id = vec3.fromValues(1.0,1.0,1.0); // diffuse
+    var Is = vec3.fromValues(1.0,1.0,1.0); // specular
+
+    // Set up material parameters    
+    var ka = vec3.fromValues(0.0,0.0,0.0); // ambient
+    var kd = vec3.fromValues(0.0, 0.0, 0.0); // diffuse - will be set for each mtl
+    var ks = vec3.fromValues(1.0,1.0,1.0); // specular
+
+    mvPushMatrix(); // for matrix transformation
+
+    //mat4.translate(mvMatrix, mvMatrix, spheres[ind][i].position);
+
+    // scaleFactor = 1.0;
+    //vec3.set(scaleVec, scaleFactor, scaleFactor, scaleFactor); // use this to set the scale
+    //mat4.scale(mvMatrix, mvMatrix, scaleVec);
     
-    //for (var i = 0; i < spheres[ind].length; i++) {
+    
+    // loop thru all the components here with diff vertex buffers, colors, etc.
+            
+    // slice fSphere for this component
+    var fLen = fSphere.length;
+    
+    for (var i = 0; i < 2; i++) {
+        
+        var thisF = [];
+        
+        // set kd
+        if (i == 0) {
+            kd = vec3.fromValues(1,0,0);
+            thisF = fSphere.slice(0, fLen/2);
+        } else {
+            kd = vec3.fromValues(0,0,1);
+            thisF = fSphere.slice(fLen/2);
+        }
 
-        var transformVec = vec3.create(); // vector to move objects around
-        var scaleVec = vec3.create(); // scaling vector
 
-        // Set up light parameters
-        var Ia = vec3.fromValues(1.0,1.0,1.0); // ambient
-        var Id = vec3.fromValues(1.0,1.0,1.0); // diffuse
-        var Is = vec3.fromValues(1.0,1.0,1.0); // specular
+        // re-bind the triindexbuffer
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexTriBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(thisF), gl.STATIC_DRAW);
+        sphereIndexTriBuffer.itemSize = 1;
+        sphereIndexTriBuffer.numItems = thisF.length; // ?
 
-        // Set up material parameters    
-        var ka = vec3.fromValues(0.0,0.0,0.0); // ambient
-        //var kd = spheres[ind][i].color; // change for each new mtl
-        var kd = vec3.fromValues(0.5, 0.3, 0.1);
-        var ks = vec3.fromValues(1.0,1.0,1.0); // specular
-
-        mvPushMatrix(); // for matrix transformation
-
-        //mat4.translate(mvMatrix, mvMatrix, spheres[ind][i].position);
-
-//        scaleFactor = 1.0;
-
-        //vec3.set(scaleVec, scaleFactor, scaleFactor, scaleFactor); // use this to set the scale
-        //mat4.scale(mvMatrix, mvMatrix, scaleVec);
-
-        // loop thru all the components here with diff vertex buffers, colors, etc.
 
         uploadLightsToShader(lightPosEye,Ia,Id,Is);
         uploadMaterialToShader(ka,kd,ks);
         setMatrixUniforms();
         drawSphere();
         mvPopMatrix();
-
-    //}
+    
+    }
 }
 
 function animate() {
