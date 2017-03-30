@@ -30,9 +30,9 @@ var mvMatrix = mat4.create(); // Create ModelView matrix
 var pMatrix = mat4.create(); //Create Projection matrix
 var mvMatrixStack = []; // setup matrix stack for transformations
 
-// Preliminary array of spheres to just hold them - eventually move to a (KD?) tree for collision checking efficiently, etc.
-var spheres = [[]]; // array OF sphere arrays - for each time step. dimension is txnx4
-
+var colors = []; // array of kd color materials to be loaded from the .mtl, referenced in obj with usemtl
+var faceSlices = []; // push when see new usemtl
+var materials = []; // materials to be loaded from the .mtl
 
 /* =================================BUFFERS AND DRAW SETUP================================= */
 
@@ -286,7 +286,21 @@ function processObj(data) {
             nSphere.push(normal[1]);
             nSphere.push(normal[2]);
             
+        } else if (type == "usemtl") {
+            
+            var materialNumber = currLineSplit[1].substring(3);
+            
+            colors.push(materials[materialNumber]);
+            
+            var fStart = lines[i+1].split(" ")[1].split("/")-1; // current face - from first face on next line
+            var fEnd = 0; // set in the f part
+            
+            var thisSlice = [fStart, fEnd];
+            
+            faceSlices.push(thisSlice);
+            
         } else if (type == "f") {
+            
             // remember to subtract by 1 to account for being 1-indexed instead of 0 for the verts
             var face1s = currLineSplit[1].split("/");
             fSphere.push(face1s[0]-1);
@@ -296,6 +310,10 @@ function processObj(data) {
             
             var face3s = currLineSplit[5].split("/");
             fSphere.push(face3s[0]-1);
+            
+            // update end from last slice
+            var fEnd = fSphere[fSphere.length-1];
+            faceSlices[faceSlices.length-1][1] = fEnd;
             
         }
     }
@@ -437,21 +455,26 @@ function setupSpheresDraw() {
     // slice fSphere for this component
     var fLen = fSphere.length;
     
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < faceSlices.length; i++) {
         
-        var thisF = [];
+        var start = faceSlices[i][0];
+        var end = faceSlices[i][1];
+        
+        var thisF = fSphere.slice(start, end);
+        
+        kd = colors[i]
         
         // set kd
-        if (i == 0) {
-            kd = vec3.fromValues(1,0,0);
-            thisF = fSphere.slice(0, fLen/2);
-        } else {
-            kd = vec3.fromValues(0,0,1);
-            thisF = fSphere.slice(fLen/2);
-        }
+//        if (i == 0) {
+//            kd = vec3.fromValues(1,0,0);
+//            thisF = fSphere.slice(0, fLen/2);
+//        } else {
+//            kd = vec3.fromValues(0,0,1);
+//            thisF = fSphere.slice(fLen/2);
+//        }
 
 
-        // re-bind the triindexbuffer
+        // re-bind the triindexbuffer with the appropriate faces slice
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexTriBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(thisF), gl.STATIC_DRAW);
         sphereIndexTriBuffer.itemSize = 1;
