@@ -30,7 +30,7 @@ var mvMatrix = mat4.create(); // Create ModelView matrix
 var pMatrix = mat4.create(); //Create Projection matrix
 var mvMatrixStack = []; // setup matrix stack for transformations
 
-var colors = []; // array of kd color materials to be loaded from the .mtl, referenced in obj with usemtl
+var material_indices = []; // array of kd color materials to be loaded from the .mtl, referenced in obj with usemtl
 var faceSlices = []; // push when see new usemtl
 var materials = []; // materials to be loaded from the .mtl
 
@@ -286,17 +286,6 @@ function processMtl(mtl_data) {
             
             i += 2; // need to jump ahead 3 in total
         }
-    
-        
-//        if (type == "newmtl") {
-//            
-//            var nextLine = lines[i+1];
-//            var nextLineSplit = nextLine.split(" ");
-//            var thisMat = vec3.fromValues(parseFloat(nextLineSplit[1]), parseFloat(nextLineSplit[2]), parseFloat(nextLineSplit[3]));
-//            
-//            materials.push(thisMat);
-//            
-//        }
         
     }
     
@@ -330,13 +319,16 @@ function processObj(data) {
             var materialNumber = currLineSplit[1].substring(3);
             
             // check if default material
-            if (materialNumber = "AULT_MTL") {
-                colors.push(materials[0]);
+            if (materialNumber == "AULT_MTL") {
+                material_indices.push(0);
             } else {
-                colors.push(materials[parseInt(materialNumber)+1]); // off by one since default material
+                material_indices.push(parseInt(materialNumber)+1); // off by one since default material
             }
             
-            var fStart = lines[i+1].split(" ")[1].split("/")[0]-1; // current face - from first face on next line
+            //var fStart = lines[i+1].split(" ")[1].split("/")[0]-1; // current face - from first face on next line
+            
+            var fStart = fSphere.length; // start recording from here
+            
             var fEnd = 0; // set in the f part
             
             var thisSlice = [fStart, fEnd];
@@ -356,7 +348,10 @@ function processObj(data) {
             fSphere.push(face3s[0]-1);
             
             // update end from last slice
-            var fEnd = fSphere[fSphere.length-1];
+            //var fEnd = fSphere[fSphere.length-1];
+            
+            var fEnd = fSphere.length-1; // record last index
+            
             faceSlices[faceSlices.length-1][1] = fEnd;
             
         }
@@ -401,7 +396,7 @@ function handleKeyUp(event) {
 }
 
 var Zangle = 0.0;
-var Yangle = 0.0;
+var Yangle = 90.0;
 var Xangle = 0.0;
 depth = 70.0;
 function handleKeys() {
@@ -508,7 +503,8 @@ function setupSpheresDraw() {
         
         var thisF = fSphere.slice(start, end);
         
-        kd = colors[i]
+        if (material_indices[i] < materials.length) // mask error - look at logic here
+        kd = materials[material_indices[i]];
         
         // set kd
 //        if (i == 0) {
