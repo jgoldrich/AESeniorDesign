@@ -336,7 +336,7 @@ function processObj(data) {
                 colors.push(materials[parseInt(materialNumber)+1]); // off by one since default material
             }
             
-            var fStart = lines[i+1].split(" ")[1].split("/")-1; // current face - from first face on next line
+            var fStart = lines[i+1].split(" ")[1].split("/")[0]-1; // current face - from first face on next line
             var fEnd = 0; // set in the f part
             
             var thisSlice = [fStart, fEnd];
@@ -485,7 +485,7 @@ function setupSpheresDraw() {
     var kd = vec3.fromValues(0.0, 0.0, 0.0); // diffuse - will be set for each mtl
     var ks = vec3.fromValues(1.0,1.0,1.0); // specular
 
-    mvPushMatrix(); // for matrix transformation
+    //mvPushMatrix(); // for matrix transformation
 
     //mat4.translate(mvMatrix, mvMatrix, spheres[ind][i].position);
 
@@ -501,7 +501,7 @@ function setupSpheresDraw() {
     
     for (var i = 0; i < faceSlices.length; i++) {
         
-        mvPushMatrix(); // for matrix transformation
+        mvPushMatrix(); // for matrix transformation for each part
         
         var start = faceSlices[i][0];
         var end = faceSlices[i][1];
