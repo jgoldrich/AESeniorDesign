@@ -256,10 +256,49 @@ function setupBuffers() {
 
 function loadData() {
 
+    // load materials from the mtl
+    $.get("uav_obj.mtl", function(mtl_data) {
+        processMtl(mtl_data);
+    })
+    
     // load sphere geom from obj
     $.get("uav_obj.obj", function(data) {
             processObj(data);
     }).done(function(){startup()});
+    
+}
+
+function processMtl(mtl_data) {
+    var words = mtl_data.split(" ");
+    
+    for (var i = 0; i < words.length; i++) {
+        
+        var currWord = words[i];
+        
+        if (currWord.substring(0,1) == "0" || currWord.substring(0,1) == "1") {
+            var R = parseFloat(currWord.substring(0,5));
+            var G = parseFloat(words[i+1].substring(0,5));
+            var B = parseFloat(words[i+2].substring(0,5));
+            
+            var thisMat = vec3.fromValues(R, G, B);
+            
+            materials.push(thisMat);
+            
+            i += 2; // need to jump ahead 3 in total
+        }
+    
+        
+//        if (type == "newmtl") {
+//            
+//            var nextLine = lines[i+1];
+//            var nextLineSplit = nextLine.split(" ");
+//            var thisMat = vec3.fromValues(parseFloat(nextLineSplit[1]), parseFloat(nextLineSplit[2]), parseFloat(nextLineSplit[3]));
+//            
+//            materials.push(thisMat);
+//            
+//        }
+        
+    }
     
 }
 
@@ -290,7 +329,12 @@ function processObj(data) {
             
             var materialNumber = currLineSplit[1].substring(3);
             
-            colors.push(materials[materialNumber]);
+            // check if default material
+            if (materialNumber = "AULT_MTL") {
+                colors.push(materials[0]);
+            } else {
+                colors.push(materials[parseInt(materialNumber)+1]); // off by one since default material
+            }
             
             var fStart = lines[i+1].split(" ")[1].split("/")-1; // current face - from first face on next line
             var fEnd = 0; // set in the f part
@@ -456,6 +500,8 @@ function setupSpheresDraw() {
     var fLen = fSphere.length;
     
     for (var i = 0; i < faceSlices.length; i++) {
+        
+        mvPushMatrix(); // for matrix transformation
         
         var start = faceSlices[i][0];
         var end = faceSlices[i][1];
