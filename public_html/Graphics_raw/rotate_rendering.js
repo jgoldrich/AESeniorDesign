@@ -257,12 +257,12 @@ function setupBuffers() {
 function loadData() {
 
     // load materials from the mtl
-    $.get("uav_obj.mtl", function(mtl_data) {
+    $.get("full_assembly.mtl", function(mtl_data) {
         processMtl(mtl_data);
     })
     
     // load sphere geom from obj
-    $.get("uav_obj.obj", function(data) {
+    $.get("full_assembly.obj", function(data) {
             processObj(data);
     }).done(function(){startup()});
     
@@ -327,7 +327,7 @@ function processObj(data) {
             
             //var fStart = lines[i+1].split(" ")[1].split("/")[0]-1; // current face - from first face on next line
             
-            var fStart = fSphere.length; // start recording from here
+            var fStart = fSphere.length; // start recording from here TODO: fix this
             
             var fEnd = 0; // set in the f part
             
@@ -350,7 +350,7 @@ function processObj(data) {
             // update end from last slice
             //var fEnd = fSphere[fSphere.length-1];
             
-            var fEnd = fSphere.length-1; // record last index
+            var fEnd = fSphere.length-1; // record last index TODO: fix this
             
             faceSlices[faceSlices.length-1][1] = fEnd;
             
@@ -396,7 +396,7 @@ function handleKeyUp(event) {
 }
 
 var Zangle = 0.0;
-var Yangle = 90.0;
+var Yangle = 0.0;
 var Xangle = 0.0;
 depth = 70.0;
 function handleKeys() {
@@ -477,8 +477,8 @@ function setupSpheresDraw() {
 
     // Set up material parameters    
     var ka = vec3.fromValues(0.0,0.0,0.0); // ambient
-    var kd = vec3.fromValues(0.0, 0.0, 0.0); // diffuse - will be set for each mtl
-    var ks = vec3.fromValues(1.0,1.0,1.0); // specular
+    var kd = vec3.fromValues(1.0, 1.0, 1.0); // diffuse - will be set for each mtl
+    var ks = vec3.fromValues(1.0, 1.0, 1.0); // specular
 
     //mvPushMatrix(); // for matrix transformation
 
@@ -494,7 +494,7 @@ function setupSpheresDraw() {
     // slice fSphere for this component
     var fLen = fSphere.length;
     
-    for (var i = 0; i < faceSlices.length; i++) {
+    for (var i = 0; i < faceSlices.length; i++) { // TODO try limiting this number
         
         mvPushMatrix(); // for matrix transformation for each part
         
@@ -503,8 +503,8 @@ function setupSpheresDraw() {
         
         var thisF = fSphere.slice(start, end);
         
-        if (material_indices[i] < materials.length) // mask error - look at logic here
-        kd = materials[material_indices[i]];
+        if (material_indices[i] < materials.length) // mask error - TODO look at logic here
+        kd = materials[material_indices[i]]; // ka or kd?
         
         // set kd
 //        if (i == 0) {
